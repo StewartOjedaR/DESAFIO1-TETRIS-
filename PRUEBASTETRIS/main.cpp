@@ -1,94 +1,94 @@
 #include "FuncionesTetris.h"
 #include <iostream>
-void InsertFigura(unsigned short* pFigura, unsigned char* pTablero,int Ancho, int Alto,int PosInicial);
-void CambiaBit(int);
+
 using namespace std;
+int Ancho, Alto; char Entrada; short Grado=0,Puntuacion=0;bool colision=false;
+bool*pColision=&colision;
+int PosInicial=5; int *pPosInicial=&PosInicial; short *pGrados=&Grado; short*pPuntuacion=&Puntuacion;
+unsigned short PosicionFicha=0; unsigned short Figura=Figuras(PosicionFicha);unsigned short *pFigura=&Figura; unsigned short *pPosicionFicha=&Figura;
 int main(){
-int Ancho=24;
-int Alto=24;
-short Grado=90;
-short *pGrados=&Grado;
-unsigned short posicion=1;
-unsigned short Figura=Figuras(posicion);
-unsigned short *pFigura=&Figura;
-//cout<<*pFigura<<'\n';
-//RotarFigura(posicion,pFigura,pGrados);
-//cout<<*pFigura<<'\n';
-///ImpFig(pFigura);
-///Bin(*pFigura);
-unsigned char *pTablero=CrearTablero(Ancho,Alto);
-//Bin1(pTablero[0]);
-//Bin1(pTablero[1]);
-//Bin1((pTablero[2]));
-MostrarTablero(Ancho , Alto , pTablero);
-int PosInicial=10;
-int PosElemento=PosInicial/8;
-int BitFigura=15;
-int cont=0;
-for (int bit=0; bit<Alto*Ancho;bit++){
-    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){
-        
-        for(BitFigura; BitFigura>=0;){cont++;
-           if ((*pFigura>>BitFigura)&1){
-               Bin1(pTablero[PosElemento]);
-               pTablero[PosElemento]=pTablero[PosElemento]|(1ULL<<bit%8);
-               Bin1(pTablero[PosElemento]);
-           }
-        if (cont%4==0){PosElemento=PosElemento+(((Ancho*Alto)/8)/Alto);bit=(bit+Ancho)-4;}
-        BitFigura--;break;
+   Mensaje();
+   cin>>Alto;
+   cout<<"Ingrese el ancho: ";cin>>Ancho;
+   unsigned char *pTablero=CrearTablero(Ancho,Alto);
+   unsigned char *pMaskTablero=MascaraTablero(Ancho,Alto);
+   MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
+   cout<<"\nPRESIONE CUALQUIER TECLA PARA INICIAR";
+   bool SalirDelJuego;
+   cin>>Entrada;
+   SalirDelJuego=true;
+   InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+do
+{
+   MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
+   cin>>Entrada;
+   switch (Entrada){
+    
+case 'A'|'a':
+       BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+       InsertFigMaskIzq(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+       cout<<ColisionLateralIzq(Alto,Ancho,pTablero,pMaskTablero,pColision);cout<<endl;
+        if (ColisionLateralIzq(Alto,Ancho,pTablero,pMaskTablero,pColision)){
+           BorrarMaskFig(pFigura,Ancho,Alto,pMaskTablero);
+           InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);*pColision=false;
+           break;
         }
+        BorrarMaskFig(pFigura,Ancho,Alto,pMaskTablero);
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+        BorrarMovIzqFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+        break;
 
-    }
+    case 'S'|'s':
+    bool FijarFichar;
+        BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){
+            pColision=false;BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+            InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+            *pPosInicial=5;*pFigura=+1;if(*pFigura>8){*pFigura=0;}
+            
+            }
+        BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
+        BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+        
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+        break;
+    
+    case 'W'|'w':
+        BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+        RotarFigura(PosicionFicha,pFigura,pGrados);
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+         break;
+
+    case 'D'|'d':
+        BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+        InsertFigMaskDer(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+           if (  Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){
+                BorrarMaskFig(pFigura,Ancho,Alto,pMaskTablero);
+                InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+                *pColision=false;
+            break;
+        }
+        BorrarMovDerFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+        break;
+
+    case 'Q'|'q': SalirDelJuego=false;
+        break;
+   
+    default:
+        BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
+        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){
+cout<<'o';pColision=false;
 }
-
-
-
-
-
-
-
-MostrarTablero(Ancho , Alto , pTablero);
-delete[] pTablero;//libero memoria
-
-
-
+        BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+        
+        InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+        break;
+    }
+}while (SalirDelJuego==true);
+delete[] pTablero,pMaskTablero;//libero memoria
 return 0;
 }
-
-/*void MostrarTablero(int Ancho, int Alto, unsigned char *tablero){//pido alto, ancho y la direccion del arregli
-int contador=0;//contador
-for (int i=0; i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){//bucle para los elementos
-  for (int j=0; j<sizeof(unsigned char)*8;j++){//bucle para los 'bits'
-    contador++;//actualizador de contador para saltar
-      if (((tablero[i]>>j)&1)==1){//le aplico AND 1 en el bit en la posicion j del elemento i y si es ==1 entonces ese bit esta true e imprime parte de la figura
-       cout<<"[]";//reemplazo de bit 1 a parte de la figura a mostrar en consola
-      }
-     else{
-      cout<<". ";//reemplazo de el bit en 0 por un .
-    }
-    if (contador%Ancho==0){//cada ancho de sea multiplo de contador entonces imprimira el salto
-       cout<<endl;
-    }
-  }
-}}
-
-*/
-
-
-
-
-void InsertFigura(unsigned short* pFigura,unsigned char* pTablero,int Ancho, int Alto,int PosInicial){
-int conta=0;
-MostrarTablero(Ancho,Alto,pTablero);
-int elemento=PosInicial/8;
-cout<<pTablero[elemento];
-for (int i=15;i>=0;i--){
-conta++;
-   if ((*pFigura>>i)&1){
-        cout<<pTablero[elemento]<<std::endl;
-        pTablero[elemento]=pTablero[elemento]|(1ULL<<conta);
-}else{}
-if (conta%4==0){cout<<endl;elemento+=3;if (conta%8==0){}}
-}
-}
-

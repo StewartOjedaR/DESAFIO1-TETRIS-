@@ -20,25 +20,28 @@ for (int i =0 ; i<valores ; i++){//recorro cada elemento de mi arreglo
 return Tablero;
 }
 
-void MostrarTablero(int Ancho, int Alto, unsigned char *tablero){//pido alto, ancho y la direccion del arregli
+void MostrarTablero(int Ancho, int Alto, unsigned char *tablero,short *Puntuacion){//pido alto, ancho y la direccion del arregli
 int contador=0;//contador
 int cont2=0;
 for (int i=0; i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){//bucle para los elementos
   for (int j=(sizeof(unsigned char)*8)-1; j>=0;j--){//bucle para los 'bits'
     contador++;//actualizador de contador para saltar
       if (((tablero[i]>>j)&1)==1){//le aplico AND 1 en el bit en la posicion j del elemento i y si es ==1 entonces ese bit esta true e imprime parte de la figura
-       cout<<cont2<<".";//reemplazo de bit 1 a parte de la figura a mostrar en consola
-       cont2++;
+       cout<<'['<<']';//reemplazo de bit 1 a parte de la figura a mostrar en consola
+      cont2++;
       }
      else{
-      cout<<cont2<<" ";//reemplazo de el bit en 0 por un .
-      cont2++;
+      cout<<'.'<<' ';//reemplazo de el bit en 0 por un .
+     cont2++;
     }
     if (contador%Ancho==0){//cada ancho de sea multiplo de contador entonces imprimira el salto
   cout<<endl;
   }
   }
-}}
+}
+cout<<"ACCIONES:[A]Izq  [D]Der  [B]Bajar  [W]Rotar [Q]Salir";
+cout<<"\nPuntuacion: "<<*Puntuacion<<"00\n";
+}
 
 
 unsigned short Figuras(unsigned short numero){
@@ -242,25 +245,269 @@ if (conta==4){cout<<endl;conta=0;}
 }
 }
 
-void InsertFig(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pTablero){
-int PosElemento=PosInicial/8;
-int BitFigura=sizeof(unsigned short)*8;
+
+unsigned char *MascaraTablero(int Ancho,  int  Alto){
+int valores=(Ancho*Alto)/(sizeof(unsigned char)*8);//Mi arreglo es de tipo unsigned char (8bits), y necesito saber cuanto bits tendra mi tablero, aqui se cuantos 'char' de 8 bits necesto para completar mi tablero
+unsigned char* Tablero=new unsigned char[valores]; //Un arreglo dinamico pues el tablero varia dependiendo del jugador
+int contador=0;//contador para 'saltos' de  lineas que ubicaran 1 en cada principio y final de linea eso ara una pared para mas adelante las colisiones
+for (int i =0 ; i<valores ; i++){//recorro cada elemento de mi arreglo
+    for (int j=(sizeof(unsigned char)*8)-1; j>=0;j--){//'recorro' las 'posiciones' de los bits
+       contador++;
+        if (contador==1 || contador%Ancho==0 ||(contador-1)%Ancho==0){//asigno un bit en 1 cada final y principio de linea dependiendo del ancha
+          Tablero[i]=Tablero[i]& ~(1ULL << j);//al elemento en la posicion i de mi arreglo corro 1bit j veces para asignarlo a esa posicion
+        }
+        else {
+           Tablero[i]=Tablero[i]& ~(1ULL << j);//pone cero en mi tablero
+        }
+    }
+}
+return Tablero;
+}
+
+
+
+void InsertFig(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pTablero,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
 int cont=0;
 for (int bit=0; bit<Alto*Ancho;bit++){
-    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){
-        
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
         for(BitFigura; BitFigura>=0;){cont++;
-           if ((*pFigura>>BitFigura)&1){
-               Bin1(pTablero[PosElemento]);
-               pTablero[PosElemento]=pTablero[PosElemento]|(1ULL<<bit%8);
-               Bin1(pTablero[PosElemento]);
-           }
-        if (cont%4==0){PosElemento=PosElemento+(((Ancho*Alto)/8)/Alto);bit=(bit+Ancho)-4;}
-        BitFigura--;break;
+            if ((*pFigura>>BitFigura)&1){
+              pTablero[(bit)/8]=pTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+
+
+
+void BorrarBajarFig(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*pTablero,unsigned char*MaskTablero,int *pPosInicial){
+
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+   pTablero[i]= pTablero[i]^MaskTablero[i];
+}
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+}*pPosInicial+=Ancho;
+}
+
+void BorrarMovIzqFig(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*pTablero,unsigned char*MaskTablero,int *pPosInicial){
+
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+   pTablero[i]= pTablero[i]^MaskTablero[i];
+}
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+}*pPosInicial-=1;
+}
+void BorrarMovDerFig(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*pTablero,unsigned char*MaskTablero,int *pPosInicial){
+
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+   pTablero[i]= pTablero[i]^MaskTablero[i];
+}
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+}*pPosInicial+=1;
+}
+
+void BorrarFig(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*pTablero,unsigned char*MaskTablero){
+
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+   pTablero[i]= pTablero[i]^MaskTablero[i];
+}
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+}
+}
+
+void InsertFigMaskIzq(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
+PosInicial-=1;
+int cont=0;
+for (int bit=0; bit<Alto*Ancho;bit++){
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
+        for(BitFigura; BitFigura>=0;){cont++;
+            if ((*pFigura>>BitFigura)&1){
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+
+void InsertFigMaskDer(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
+PosInicial+=1;
+int cont=0;
+for (int bit=0; bit<Alto*Ancho;bit++){
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
+        for(BitFigura; BitFigura>=0;){cont++;
+            if ((*pFigura>>BitFigura)&1){
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+
+
+
+
+bool ColisionLateralIzq(int Alto, int Ancho,unsigned char* pTablero, unsigned char* pMaskTablero, bool* pColision) {
+*pColision = false;
+char ContadorBits=0;
+int ContadorBytes=0;
+unsigned char MaskByte=0x0000;
+int total_bytes = (Ancho * Alto) / (sizeof(unsigned char) * 8);
+for (int i = 0; i < total_bytes; i++) {
+    if (pMaskTablero[i]==0b00000000||pTablero[i]==0b00000000){
+        ContadorBytes++; if (ContadorBytes==Ancho/8){ContadorBytes=0;};continue;
+    }
+    for (int j=7;j>=0;j--){
+        if (pMaskTablero[i]&1<<j){
+                MaskByte|=1<<j;
+                if (ContadorBytes==0){
+                    MaskByte=(MaskByte|0b10000000);
+Bin1(MaskByte);cout<<' ';Bin1(pTablero[i]);cout<<'\n';;break;
+                }
+                if (ContadorBytes==(Ancho/8)){
+                 MaskByte=(MaskByte|0b00000001);ContadorBytes=0;
+Bin1(MaskByte);cout<<' ';Bin1(pTablero[i]);cout<<'\n';break;
+                }
+        }
+    }
+Bin1(MaskByte);cout<<'x';Bin1(pTablero[i]);cout<<'\n';
+if((MaskByte^pTablero[i])==0){
+    if (MaskByte==0b10000000 &&pTablero[i]==0b10000000){
+    *pColision=true; return *pColision; break;
+    } 
+    *pColision=true; return *pColision;
+}
+
+if (*pColision==true){break;}
+}
+   return *pColision;
+}
+
+
+
+void RecuperarMaskFig(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
+int cont=0;
+for (int bit=0; bit<Alto*Ancho;bit++){
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
+        for(BitFigura; BitFigura>=0;){cont++;
+            if ((*pFigura>>BitFigura)&1){
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+
+
+void InsertFigMaskAbajo(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
+PosInicial+=Ancho;
+int cont=0;
+for (int bit=0; bit<Alto*Ancho;bit++){
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
+        for(BitFigura; BitFigura>=0;){cont++;
+            if ((*pFigura>>BitFigura)&1){
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+void BorrarMaskFig(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*MaskTablero){
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+}
+}
+
+
+bool ColisionLateralDer(int Alto, int Ancho,unsigned char* pTablero, unsigned char* pMaskTablero, bool* pColision) {
+*pColision = false;
+char ContadorBits=0;
+int ContadorBytes=0;
+unsigned char MaskByte=0x0000;
+int total_bytes = (Ancho * Alto) / (sizeof(unsigned char) * 8);
+for (int i = 0; i < total_bytes; i++) {
+    if (pMaskTablero[i]==0b00000000||pTablero[i]==0b00000000){
+        ContadorBytes++; if (ContadorBytes==Ancho/8){ContadorBytes=0;};continue;
+    }
+    for (int j=0;j<=7;j++){
+        if ((pMaskTablero[i]&1<<j)){if (MaskByte=!0){break;}
+                MaskByte=0b00000000;
+                MaskByte|=1<<j;
+                if (ContadorBytes==0){
+                    MaskByte=(MaskByte|0b00000000);
+                }
+                if (ContadorBytes==(Ancho/8)){
+                 MaskByte=(MaskByte|0b00000000);ContadorBytes=0;
+                }
+            
         }
 
     }
+if((MaskByte&pTablero[i])!=0){
+    if (((MaskByte&1<<0)) || ((pMaskTablero[i]&1<<0))){
+    *pColision=true; return *pColision; break;
+    } 
+    *pColision=true; return *pColision;
 }
+
+if (*pColision==true){break;}
 }
+   return *pColision;
+}
+
+
+bool Colision(int Alto, int Ancho,unsigned char* pTablero, unsigned char* pMaskTablero, bool* pColision){
+
+bool MaskBitFig; bool MaskBitTab;
+        for (int i=0; i<72;i++){
+             for (int j=0;j<(Ancho*Alto)/8;j++){
+                  for (int bit=0;bit<=7;bit++){
+                   MaskBitFig=pMaskTablero[j]&1<<bit;
+                   MaskBitTab=pTablero[j]&1<<bit;
+                      if (MaskBitFig&&MaskBitTab){return *pColision=true;}
+                  }}
+        }
+return *pColision=false;}
+void Mensaje(){
+cout<<"\tTETRIS by Stewart Ojeda\t\nPara iniciar ingresa el tamano del tablero \t";
+cout<<"\nEl tamano del tablero es 8:1 (1Unidad=8Bloques)";
+cout<<"\nIngrese la altura: ";
+}
+
 #endif // FUNCIONESTETRIS_H
 
