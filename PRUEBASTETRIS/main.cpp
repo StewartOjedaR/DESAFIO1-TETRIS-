@@ -3,7 +3,7 @@
 
 using namespace std;
 int Ancho, Alto; char Entrada; short Grado=0,Puntuacion=0;bool colision=false;
-bool*pColision=&colision;
+bool*pColision=&colision;bool Fijar=false;bool*pFijar=&Fijar;
 int PosInicial=5; int *pPosInicial=&PosInicial; short *pGrados=&Grado; short*pPuntuacion=&Puntuacion;
 unsigned short PosicionFicha=0; unsigned short Figura=Figuras(PosicionFicha);unsigned short *pFigura=&Figura; unsigned short *pPosicionFicha=&Figura;
 int main(){
@@ -39,16 +39,23 @@ case 'A'|'a':
         InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
         break;
 
-    case 'S'|'s':
-    bool FijarFichar;
+    case 's'|'S':
+        MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
         BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
-        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
-        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){
+MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
+        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero,pFijar,pColision,pTablero);
+           if (*pFijar==true){
             pColision=false;BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
             InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
             *pPosInicial=5;*pFigura=+1;if(*pFigura>8){*pFigura=0;}
             
             }
+
+
+
+MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
+cout<<Colision(Alto,Ancho,pTablero,pMaskTablero,pColision);
+        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision))
         BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
         BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
         
@@ -79,9 +86,8 @@ case 'A'|'a':
    
     default:
         BorrarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero);
-        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
-        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){
-cout<<'o';pColision=false;
+        InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero,pFijar,pColision,pTablero);
+        if (Colision(Alto,Ancho,pTablero,pMaskTablero,pColision)){;pColision=false;
 }
         BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
         
