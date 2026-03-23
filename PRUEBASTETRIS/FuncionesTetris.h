@@ -238,11 +238,11 @@ for (int i=(sizeof(a)*8)-1;i>=0;i--){
 
 
 /*Imprime una figura 4*4, originalmente se creo con el animo de para mostras la siguiente figura*/
-void ImpFig(unsigned short *pFiguras){
+void ImpFig(unsigned short &pFiguras){
 int conta=0;
 for (int i=15;i>=0;i--){
 conta++;
-   if ((*pFiguras>>i)&1){
+   if ((pFiguras>>i)&1){
 cout<<"[]";
 }else{cout<<" .";}
 if (conta==4){cout<<endl;conta=0;}
@@ -272,7 +272,7 @@ return Tablero;
 
 
 /*Inserta la figura en el tablero*/
-void InsertFig(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pTablero,unsigned char*pMaskTablero){
+void InsertFig(unsigned short *pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pTablero,unsigned char*pMaskTablero){
 int BitFigura=(sizeof(unsigned short)*8)-1;
 int cont=0;
 for (int bit=0; bit<Alto*Ancho;bit++){
@@ -330,7 +330,20 @@ MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
 }
 /*borra la figura del rablero y de la mascara,util para actualizar
 */
-void BorrarFig(unsigned short*pFigura,int Alto, int Ancho,
+void BorrarFigTablero(unsigned short*pFigura,int Alto, int Ancho,
+unsigned char*pTablero,unsigned char*MaskTablero){
+
+for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+   pTablero[i]= pTablero[i]^MaskTablero[i];
+}
+//for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
+//MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
+//}
+}
+
+
+
+void BorrarFigYMask(unsigned short*pFigura,int Alto, int Ancho,
 unsigned char*pTablero,unsigned char*MaskTablero){
 
 for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
@@ -340,6 +353,8 @@ for (int i=0;i<(Ancho*Alto)/(sizeof(unsigned char)*8);i++){
 MaskTablero[i]=MaskTablero[i]^MaskTablero[i];
 }
 }
+
+
 /*inserta figura en la mascara para despues verificar colisiones*/
 void InsertFigMaskIzq(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
 int BitFigura=(sizeof(unsigned short)*8)-1;
@@ -378,6 +393,25 @@ if (bit>1+(PosInicial+(4*Ancho))){break;}
 }
 
 }
+
+void InsertFigMask(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
+int BitFigura=(sizeof(unsigned short)*8)-1;
+int cont=0;
+for (int bit=0; bit<Alto*Ancho;bit++){
+    if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
+        for(BitFigura; BitFigura>=0;){cont++;
+            if ((*pFigura>>BitFigura)&1){
+              pMaskTablero[(bit)/8]=pMaskTablero[(bit)/8]|(1ULL<<(8-((bit)%8))-1);
+            }
+            if (cont%4==0){bit=(bit+Ancho)-4;}
+              BitFigura--;break;
+        }
+    }
+if (bit>1+(PosInicial+(4*Ancho))){break;}
+}
+
+}
+
 
 
 /*Se utiliza para colisiones(funcional pero no se usa), preferi otra funcion que verifique bit a bit las colisiones*/
@@ -439,11 +473,10 @@ if (bit>1+(PosInicial+(4*Ancho))){break;}
 }
 
 /*inseta la figura de la mascara abajo para checar colisiones*/
-void InsertFigMaskAbajo(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero,bool*pFijar, bool*pColision){
+void InsertFigMaskAbajo(unsigned short*pFigura,int Alto, int Ancho, int PosInicial,unsigned char*pMaskTablero){
 int BitFigura=(sizeof(unsigned short)*8)-1;
-if (PosInicial+Ancho>Alto*Ancho){*pFijar=true; *pColision=true; return;}
-PosInicial+=Ancho;
 int cont=0;
+PosInicial+=Ancho;
 for (int bit=0; bit<Alto*Ancho;bit++){
     if (PosInicial<=bit&PosInicial+(4*Ancho)>=bit){   
         for(BitFigura; BitFigura>=0;){cont++;
@@ -504,18 +537,55 @@ if (*pColision==true){break;}
 }
 
 /*Compara bit a bit el arreglo , si algun bit coincide ¡Colision!*/
-bool Colision(int Alto, int Ancho,unsigned char* pTablero, unsigned char* pMaskTablero, bool* pColision){
-
+bool Colision(int Alto, int Ancho,unsigned char* pTablero, unsigned char* pMaskTablero){
 bool MaskBitFig; bool MaskBitTab;
-        for (int i=0; i<Alto*Ancho;i++){
-             for (int j=0;j<(Ancho*Alto)/8;j++){
-                  for (int bit=0;bit<=7;bit++){
-                   MaskBitFig=pMaskTablero[j]&1<<bit;
-                   MaskBitTab=pTablero[j]&1<<bit;
-                      if (MaskBitFig&&MaskBitTab){return *pColision=true;}
-                  }}
+            for (int j=0;j<((Ancho*Alto)/(sizeof(char)*8))-1;j++){//total de bytes empezando desde el la posicion 0
+
+                  for (int bit=0;bit<=7;bit++){//recorro cada bit del byte
+                   MaskBitFig=pMaskTablero[j]&1<<bit;//guardo el bit de la mascara
+                   
+                   MaskBitTab=pTablero[j]&1<<bit;//guardo el bit del tablero
+                      if (MaskBitFig&&MaskBitTab){ 
+                           return bool(1);}//si ambos son true,entoces colicion
+                  }
         }
-return *pColision=false;}
+return  bool(0);}
+
+bool Limite(int Alto, int Ancho,unsigned char *pMaskTablero){
+bool MaskBitFig; bool MaskBitTab;
+MaskBitTab=Ancho/sizeof(char)*8;
+int ok=((Ancho*Alto)/(sizeof(char)*8))-1, n=(((Ancho*Alto)/(sizeof(char)*8))-1)-(Ancho)/(sizeof(char)*8);
+for (int i=((Ancho*Alto)/(sizeof(char)*8))-1; i>(((Ancho*Alto)/(sizeof(char)*8))-1)-(Ancho)/(sizeof(char)*8);i--){
+    for (int bit=7;bit>=0;bit--){
+        if (pMaskTablero[i]&1<<bit){
+         Bin1(pMaskTablero[i]);
+            return true;
+}
+}
+}
+return false;
+}
+
+
+
+bool BorrarLinea(int Alto, int Ancho, unsigned char* pMaskTablero){
+bool MaskBitFig; bool MaskBitTab;
+        for (int i=(((Ancho*Alto)/(sizeof(char)*8))-((((Ancho/sizeof(char)*8))))-1); i<Alto*Ancho;i++){//Empiezo en la "ultima linea" osea los ultimos bytes que hacen una linea,
+           
+            for (int bit=0;bit<=7;bit++){
+                if ((pMaskTablero[i]&1<<bit)){//a 0000 0001<<bit:(si bit=3):0000 0100 y junto pMaskTablero[i]= 0000 0100 y aplico AND eso seria true y seguiria a la siguiente accion
+                   return true;
+                }
+            }
+        }
+return false;}
+
+
+
+
+
+
+
 void Mensaje(){
 cout<<"\tTETRIS by Stewart Ojeda\t\nPara iniciar ingresa el tamano del tablero \t";
 cout<<"\nEl tamano del tablero es 8:1 (1Unidad=8Bloques)";
@@ -523,6 +593,43 @@ cout<<"\nIngrese la altura: ";
 }
 
 
+
+bool FilaCompleta(unsigned char* pTableroCopia,int Ancho, int Alto){
+char MascaraBits=0b11111111;
+int ContadorBytes=0;
+int cont=0;
+for (int i=0;i<(Ancho*Alto)/(sizeof(char)*8);i++){
+    cont++;
+    if (cont=Ancho/8){
+        ContadorBytes=0;
+        cont=0;
+    }
+    if (pTableroCopia[i]&MascaraBits){
+      ContadorBytes++;
+      if (ContadorBytes=Ancho/8){return true;}
+    }  
+}
+return false;
+}
+
+
+
+void EliminarFila(){
+
+
+}
+
+
+
+
+
+
+void *CopiarTablero(int Ancho,int Alto,unsigned char*pTablero,unsigned char*pTableroCopia){
+for (int i = 0; i < (Ancho*Alto)/8; i++){
+   pTableroCopia[i]=pTableroCopia[i]|pTablero[i];
+}
+return 0;
+}
 
 
 #endif // FUNCIONESTETRIS_H
