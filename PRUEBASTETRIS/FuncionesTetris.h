@@ -614,13 +614,59 @@ return false;
 
 
 
-void EliminarFila(){
-
+void EliminarFila(unsigned char* pTableroCopia,int Ancho, int Alto){
+char MascaraBits=0b11111111;
+int ContadorBytes=0;
+int cont=0;
+int *arreglo=new int [Ancho/8];
+for (int i=0;i<(Ancho*Alto)/(sizeof(char)*8);i++){
+    cont++;
+    if (cont=Ancho/8){
+        ContadorBytes=0;
+        cont=0;
+    }
+    if (pTableroCopia[i]&MascaraBits){
+      ContadorBytes++;
+      arreglo[cont-1]=i;
+      if (ContadorBytes=Ancho/8){}
+    }  
+}
 
 }
 
 
+void EliminarFilax(unsigned char* pTablero, int Ancho, int Alto) {
+    unsigned char MascaraBits = 0b11111111;
+    int BytesPorFila = Ancho / 8;
+    int total_bytes = (Ancho * Alto) / (sizeof(unsigned char) * 8);
 
+    for (int fila = 0; fila < Alto; fila++) {
+        int inicio = fila * BytesPorFila;
+        bool filaLlena = true;
+
+        // Verificar si todos los bytes de la fila están llenos
+        for (int col = 0; col < BytesPorFila; col++) {
+            if ((pTablero[inicio + col] & MascaraBits) != MascaraBits) {
+                filaLlena = false;
+                break;
+            }
+        }
+
+        // Si la fila está llena, eliminarla
+        if (filaLlena) {
+            // Bajar todas las filas de arriba hacia abajo
+            for (int f = fila; f > 0; f--) {
+                for (int col = 0; col < BytesPorFila; col++) {
+                    pTablero[f * BytesPorFila + col] = pTablero[(f - 1) * BytesPorFila + col];
+                }
+            }
+            // Limpiar la primera fila
+            for (int col = 0; col < BytesPorFila; col++) {
+                pTablero[col] = 0;
+            }
+        }
+    }
+}
 
 
 

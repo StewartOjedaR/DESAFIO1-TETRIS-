@@ -57,7 +57,6 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
                     BorrarFigYMask(pFigura,Alto,Ancho,pTablero, pMaskTablero);
                     *pPosicionFicha+=1;
-cout<<PosicionFicha;
                     if (*pPosicionFicha>=7){
                         *pPosicionFicha=0;}
                     ;
@@ -83,9 +82,8 @@ cout<<PosicionFicha;
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
 
-                    if (FilaCompleta){
-
-cout<<"exito\n";
+                    if (FilaCompleta(pTableroCopia,Ancho,Alto)){
+                    EliminarFila(pTableroCopia,Ancho,Alto);
                     }
 
 
