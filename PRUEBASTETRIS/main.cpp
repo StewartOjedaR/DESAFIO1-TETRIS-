@@ -1,33 +1,29 @@
 #include "FuncionesTetris.h"
 #include <iostream>
-unsigned short Tetros[7]={0x0f00,0x0660,0x0072,0x0036,0x0063,0x0226,0x0223};
 using namespace std;
 int Ancho=24, Alto=24; char Entrada; short Grado=0,Puntuacion=0;bool colision=false;
 bool*pColision=&colision;bool Fijar=false;bool*pFijar=&Fijar;
 int PosInicial=5; int *pPosInicial=&PosInicial; short *pGrados=&Grado; short*pPuntuacion=&Puntuacion;
  
 int main(){
-unsigned short PosicionFicha=2;
+unsigned short PosicionFicha=5;
 unsigned short *pPosicionFicha=&PosicionFicha;
 unsigned short Figura=Figuras(PosicionFicha);unsigned short *pFigura=&Figura;
     Mensaje();
- //   cin>>Alto;
-   // cout<<"Ingrese el ancho: ";cin>>Ancho;
-    unsigned char *pTablero=CrearTablero(Ancho,Alto);
-    unsigned char *pTableroCopia=CrearTablero(Ancho,Alto);
-    unsigned char *pMaskTablero=MascaraTablero(Ancho,Alto);
+    cin>>Alto;
+    cout<<"Ingrese el ancho: ";cin>>Ancho;
+    unsigned char *pTablero=CrearTablero(Ancho,Alto);//Creo tablero
+    unsigned char *pTableroCopia=CrearTablero(Ancho,Alto);//creo copia
+    unsigned char *pMaskTablero=MascaraTablero(Ancho,Alto);//un tablero en blanco para usar de mascara
     MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
     cout<<"\nPRESIONE CUALQUIER TECLA PARA INICIAR";
-    bool SalirDelJuego;
+    bool SalirDelJuego;//bandera de salida
     cin>>Entrada;
-    SalirDelJuego=true;
-    InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+    SalirDelJuego=true;//cambia si quieren salir
+    InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);//inserto la figura en el 
     InsertFig(pFigura,Alto,Ancho,PosInicial,pTableroCopia,pMaskTablero);
-MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
- MostrarTablero(Ancho,Alto,pTableroCopia,pPuntuacion);
- MostrarTablero(Ancho,Alto,pTablero,pPuntuacion);
     do
-    {
+    {   system("cls");
         MostrarTablero(Ancho,Alto,pTableroCopia,pPuntuacion);
         BorrarFigTablero(pFigura,Alto,Ancho,pTablero,pMaskTablero);
         BorrarFigTablero(pFigura,Alto,Ancho,pTableroCopia,pMaskTablero);
@@ -51,7 +47,23 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
             break;
 
         case 's':
-                if (Limite(Alto,Ancho,pMaskTablero)){
+                InsertFigMask(pFigura,Alto,Ancho,PosInicial,pTableroCopia);
+                if (FilaCompleta(pTableroCopia,Ancho,Alto)){
+                    EliminarFila(pTableroCopia,Ancho,Alto);
+                    BorrarFigYMask(pFigura,Alto,Ancho,pTablero, pMaskTablero);
+                    *pPosicionFicha+=2; 
+                    if (*pPosicionFicha>=7){
+                        *pPosicionFicha-=7;
+                    }
+                    Figura=Figuras(PosicionFicha);
+                    PosInicial=5;
+                    *pGrados=0;
+                    InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+                    CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);                                     
+                         break;
+                    }
+                BorrarFigTablero(pFigura,Alto,Ancho,pTableroCopia,pMaskTablero);
+                if (Limite(Alto,Ancho,pMaskTablero)){//
                     BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
@@ -62,13 +74,14 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
                     ;
                     PosInicial=5;
                     Figura=Figuras(PosicionFicha);
+                    *pGrados=0;
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
                         break;
                 }
-            BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
-            InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
-            if (Colision(Alto,Ancho,pTableroCopia,pMaskTablero)){
+                BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
+                InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+                if (Colision(Alto,Ancho,pTableroCopia,pMaskTablero)){
                     BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
@@ -79,36 +92,28 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
                     }
                     Figura=Figuras(PosicionFicha);
                     PosInicial=5;
+                    *pGrados=0;
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
-
-                    if (FilaCompleta(pTableroCopia,Ancho,Alto)){
-                    EliminarFila(pTableroCopia,Ancho,Alto);
-                    }
-
-
                         break;
-}
-
-            BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
-            BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
-            InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
-            CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
-            break;
+                }
+                BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
+                BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+                *pGrados=0;
+                InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+                CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
+                     break;
 
         case 'w':
-         //   BorrarFigTablero((pFigura+PosicionFicha),Alto,Ancho,pTableroCopia,pMaskTablero);
+
             BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
-            *pGrados+=90;if (*pGrados>271){*pGrados=0;}
+            *pGrados=(*pGrados+90)%360;
             RotarFigura(*pPosicionFicha,pFigura,pGrados);
             InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
-      /*      if (Colision(Alto,Ancho,pTableroCopia,pMaskTablero)){  
-                BorrarFigYMask(pFigura,Alto,Ancho,pTablero,pMaskTablero);
-               *pGrados-=90;
-                RotarFigura(*pPosicionFicha,pFigura,pGrados);
-                InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
-
-            }*/
+            if (Colision(Alto,Ancho,pTablero,pMaskTablero)){
+                
+                
+                }
             CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
             break;
 
@@ -131,22 +136,39 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
             break;
 
         default:
-                  if (Limite(Alto,Ancho,pMaskTablero)){
+                InsertFigMask(pFigura,Alto,Ancho,PosInicial,pTableroCopia);
+                if (FilaCompleta(pTableroCopia,Ancho,Alto)){
+                    EliminarFila(pTableroCopia,Ancho,Alto);
+                    BorrarFigYMask(pFigura,Alto,Ancho,pTablero, pMaskTablero);
+                    *pPosicionFicha+=2; 
+                    if (*pPosicionFicha>=7){
+                        *pPosicionFicha-=7;
+                    }
+                    Figura=Figuras(PosicionFicha);
+                    PosInicial=5;
+                    InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+                    CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);                                     
+                         break;
+                    }
+                BorrarFigTablero(pFigura,Alto,Ancho,pTableroCopia,pMaskTablero);
+                if (Limite(Alto,Ancho,pMaskTablero)){//
                     BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
                     BorrarFigYMask(pFigura,Alto,Ancho,pTablero, pMaskTablero);
-                    *pPosicionFicha+=1; 
+                    *pPosicionFicha+=1;
                     if (*pPosicionFicha>=7){
                         *pPosicionFicha=0;}
+                    ;
                     PosInicial=5;
+                    Figura=Figuras(PosicionFicha);
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
                         break;
                 }
-            BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
-            InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
-            if (Colision(Alto,Ancho,pTableroCopia,pMaskTablero)){
+                BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
+                InsertFigMaskAbajo(pFigura,Alto,Ancho,PosInicial,pMaskTablero);
+                if (Colision(Alto,Ancho,pTableroCopia,pMaskTablero)){
                     BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
@@ -155,18 +177,19 @@ MostrarTablero(Ancho,Alto,pMaskTablero,pPuntuacion);
                     if (*pPosicionFicha>=7){
                         *pPosicionFicha-=7;
                     }
+                    Figura=Figuras(PosicionFicha);
                     PosInicial=5;
                     InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
                     CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
-
-                    if (FilaCompleta){
-
-cout<<"exito\n";
-                    }
-
-
                         break;
-}
+                }
+                BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
+                BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
+                InsertFig(pFigura,Alto,Ancho,PosInicial,pTablero,pMaskTablero);
+                CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
+                     break;
+
+
 
             BorrarMaskFig(pFigura,Alto,Ancho,pMaskTablero);
             BorrarBajarFig(pFigura,Alto,Ancho,pTablero,pMaskTablero,pPosInicial);
@@ -174,7 +197,7 @@ cout<<"exito\n";
             CopiarTablero(Ancho,Alto,pTablero,pTableroCopia);
             break;
         }
-    }while (SalirDelJuego==true);
+    }while (SalirDelJuego);
     delete[] pTablero,pMaskTablero;//libero memoria
     return 0;
 }

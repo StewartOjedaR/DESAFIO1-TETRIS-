@@ -85,15 +85,15 @@ switch (posicion){
         switch (*Grados){
             case 0://0x0072
                 if (*pFiguras==0x0232){//  0000 0010 0011 0010
-                 *pFiguras^=0x0240;//XOR 0000 0010 0100 0000
+                 *pFiguras^=0x0240;//XOR   0000 0010 0100 0000
                 }                     //   0000 0000 0111 0010
 
                 else{*pFiguras^=0x0210;// 0X0262-> 0000 0010 0110 0010
                 }              //   XOR   0X0210-> 0000 0010 0001 0000
             break;//                               0000 0000 0111 0010
             case 90:
-                if (*pFiguras==0x0072){
-                   *pFiguras^=0x0210; 
+                if (*pFiguras==0x0072){//  0000 0010 0011 0010
+                   *pFiguras^=0x0210; //   0000 0010 0001 0000
                 }
                 else{*pFiguras^=0x0012;
                 }
@@ -106,18 +106,18 @@ switch (posicion){
                 }
             break;
             case 270:
-                if (*pFiguras==0x0270){
-                   *pFiguras^=0x0042; 
+                if (*pFiguras==0x0270){//0000 0010 0111 0000
+                   *pFiguras^=0x0042; // 0000 0000 0100 0010
                 }
-                else{*pFiguras^=0x0240;
-                }
+                else{*pFiguras^=0x0240;//
+                }//           0x0240     0000 0010 0100 0000
             break;
         }
     break;//0x0f00,0x0660,0x0072,0x0036,0x0063,0x0226,0x0223,
     case 3://0x0036
         switch(*Grados){
             case 0:
-                *pFiguras^=0x0454;
+                *pFiguras^=0x0454;//0000 0100 0101 0100
                     break;
             case 90:
                 *pFiguras^=0x0454;
@@ -149,23 +149,27 @@ switch (posicion){
     case 5://0x0226//0000 0010 0010 0110
         switch (*Grados){
             case 0://0x0226//00010 0010 0110
-                if (*pFiguras==0x0047){//0000 0000 0100 0111
-                    *pFiguras^=0x0261; //   0000 0010 0110 0001
+                if (*pFiguras==0x0071){//0000 0000 0111 0001  
+                    *pFiguras^=0x0257; //0000 0010 0101 0110  
                 }//                      0000 0010 0010 0110
-                else {*pFiguras^=0x0257;//0x0071// 0000 0000 0111 0001
-                }//                      0x0261//  0000 0010 0101 0111
-            break;
-            case 90://0x0047
+                else {*pFiguras^=0x0261;// 0000 0000 0100 0111 
+                }//                        0000 0010 0110 0001  
+            break;//                       0000 0010 0010 0110
+
+            case 90://0x0047//0000 0000 0100 0111
                 if (*pFiguras==0x0226){//0000 0010 0010 0110
                     *pFiguras^=0x0261; //0000 0010 0110 0001
-                }
-                else{*pFiguras^=0x0365;
-                }
-            break;
+                }                      //0000 0000 0100 0111
+
+                else{*pFiguras^=0x0365;//0000 0011 0010 0010
+                }//                      0000 0011 0110 0101
+            break;//                     0000 0000 0100 0111
+
             case 180://0x0322//0000 0011 0010 0010
                 if (*pFiguras==0x0047){//0000 0000 0100 0111
                     *pFiguras^=0x0365; //0000 0011 0110 0101
-                }
+                }//                      0000 0011 0010 0010
+
                 else{*pFiguras^=0x0353;//0x0071// 0000 0000 0111 0001
                 }                      //0x0353// 0000 0011 0101 0011
                                               //  0000 0011 0010 0010
@@ -179,36 +183,40 @@ switch (posicion){
             break;                      ///      0000 0000 0111 0001
         }
     break;
-    case 6://0x0223
+    case 6://0x0223 0000 0010 0010 0011
         switch (*Grados){
             case 0:
-                if (*pFiguras==0x0017){
-                   *pFiguras^=0x0234; 
-                }
-                else{*pFiguras^=0x0257;
-                }
-            break;
-            case 90:
-                if (*pFiguras==0x0223){
-                    *pFiguras^=0x0257; 
-                }
-                else{*pFiguras^=0x0656;
-                }
-            break;
-            case 180:
-                if (*pFiguras==0x0074){
-                    *pFiguras^=0x0656; 
+                if (*pFiguras==0x0017){//0000 0000 0001 0111
+                   *pFiguras^=0x0234;  //0000 0010 0011 0110
+                }//                      0000 0010 0010 0011
+
+                else{*pFiguras^=0x0257;// 0000 0000 0111 0100
+                }                       //0000 0010 0101 0111
+            break;//                      0000 0010 0010 0011
+            case 90://0x0074// 0000 0000 0111 0100
+                if (*pFiguras==0x0223){//0000 0010 0010 0011
+                    *pFiguras^=0x0257; //0000 0010 0101 0111
+                }                    //  0000 0000 0111 0100
+
+                else{*pFiguras^=0x0656;//0000 0110 0010 0010
+                }//                      0000 0110 0101 0110
+            break;//                     0000 0000 0111 0100
+            case 180://0x0622//0000 0110 0010 0010
+                if (*pFiguras==0x0074){//0000 0000 0111 0100
+                    *pFiguras^=0x0656; //0000 0110 0101 0110
+//                                       0000 0110 0010 0010
                 }
                 else{*pFiguras^=0x0635;
-                }
-            break;
-            case 270:
-                if (*pFiguras==0x0622){
-                    *pFiguras^=0x0635; 
-                }
-                else{*pFiguras^=0x0234;
-                }
-            break;
+                }//                      0000 0110 0011 0101
+            break;//                     0000 0110 0010 0010
+            case 270://0017//0000 0000 0001 0111
+                if (*pFiguras==0x0622){//0000 0110 0010 0010
+                    *pFiguras^=0x0635; //0000 0110 0011 0101
+                }//                   // 0000 0000 0001 0111
+
+                else{*pFiguras^=0x0234;////0223// 0000 0010 0010 0011 
+                }//                               0000 0010 0011 0100
+            break;//                              0000 0000 0001 0111 
         }
     break;
     default:
@@ -595,43 +603,93 @@ cout<<"\nIngrese la altura: ";
 
 
 bool FilaCompleta(unsigned char* pTableroCopia,int Ancho, int Alto){
-char MascaraBits=0b11111111;
+int bits;
 int ContadorBytes=0;
 int cont=0;
+bool ok;
 for (int i=0;i<(Ancho*Alto)/(sizeof(char)*8);i++){
-    cont++;
-    if (cont=Ancho/8){
+    if (cont==Ancho/8){
         ContadorBytes=0;
         cont=0;
+        ok=false;
     }
-    if (pTableroCopia[i]&MascaraBits){
-      ContadorBytes++;
-      if (ContadorBytes=Ancho/8){return true;}
-    }  
+//Bin1(pTableroCopia[i]);
+    bits=0;
+    for (int j=0; j<=7;j++){
+        if (pTableroCopia[i]&1<<j){
+            bits++;
+            if(bits==8){
+
+                   ContadorBytes++;
+            }
+        }
+    }
+  cont++; 
+if (ContadorBytes>=Ancho/8){
+    return true;} 
 }
+
 return false;
 }
 
 
 
 void EliminarFila(unsigned char* pTableroCopia,int Ancho, int Alto){
-char MascaraBits=0b11111111;
+int BitsOn=0;
 int ContadorBytes=0;
+bool ok=false;
 int cont=0;
-int *arreglo=new int [Ancho/8];
-for (int i=0;i<(Ancho*Alto)/(sizeof(char)*8);i++){
-    cont++;
-    if (cont=Ancho/8){
+bool FilasCompletas=false;
+int *PosicionBytes=new int [Ancho/8];//creo arreglo para las posiciones
+for (int i=0;i<(Ancho*Alto)/(sizeof(char)*8);i++){//recorro todos los bytes  
+    for (int k=0;k<=7;k++){
+       if (pTableroCopia[i]&1<<k){
+       BitsOn++;if (BitsOn==8){ok=true;}
+       }
+       
+    }BitsOn=0;
+    
+    if (ok){
+        ContadorBytes++;
+        PosicionBytes[cont]=i;//guaroo lsa posiciones de los bytes completos
+        if (ContadorBytes==Ancho/8){FilasCompletas=true;
+            }
+    }  
+    cont++; //contador ppara saber que linea esta completa
+    if (cont==Ancho/8){
         ContadorBytes=0;
         cont=0;
-    }
-    if (pTableroCopia[i]&MascaraBits){
-      ContadorBytes++;
-      arreglo[cont-1]=i;
-      if (ContadorBytes=Ancho/8){}
-    }  
+    }if (FilasCompletas){break;}
+ok=false;
 }
 
+
+int bytes=((Ancho*Alto)/8)-1;
+for (int m=(Ancho/8)-1;m>=0;m--){cout<<PosicionBytes[m];}
+
+bool salto;
+
+
+    for (int k=((Ancho*Alto)/8)-1;k>=0;k--){//empienza en 71, el ultimo elemento del arreglo
+     salto=false;
+        for (int j=(Ancho/8)-1;j>=0;j--){//recorro el arreglo dinamico con las posiciones
+            if (PosicionBytes[j]==k){//si lo que hay en la posicion 2 71==71, una vez la fila completa saltada
+             salto=true;//rompo y paso a la sigte i=70
+            }
+        }
+        if (salto){continue;}
+
+    pTableroCopia[bytes]=pTableroCopia[k];bytes--;//no agregan lo que hay en tablero[i] i=71,no agrega ese byte
+        if (k==0){//una vez i llegue a cero faltara agregar en blanco las filas que no se agregaron, al llegar a 0sela la ultima fila
+            for(int l=bytes;l>=0;l--){//empezamo justo en la pocision del byte que neceecitamos poner en 0, 71,70,69;osea que quedo en byte=2
+                pTableroCopia[bytes]=0x0000;//reemplazo por 00000000, en la pocision 2,1,0
+                }
+         
+
+        }
+
+}
+delete[] PosicionBytes;
 }
 
 
