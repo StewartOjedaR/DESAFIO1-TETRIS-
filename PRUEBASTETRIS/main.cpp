@@ -198,6 +198,6 @@ unsigned short Figura=Figuras(PosicionFicha);unsigned short *pFigura=&Figura;
             break;
         }
     }while (SalirDelJuego);
-    delete[] pTablero,pMaskTablero;//libero memoria
+    delete[] pTablero,pMaskTablero,pTableroCopia;//libero memoria
     return 0;
 }
